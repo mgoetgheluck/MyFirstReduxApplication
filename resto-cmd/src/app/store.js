@@ -1,42 +1,25 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit"
+import { cartSlice } from "../features/cart/cartSlice";
+import { ownerSlice } from "../features/owner/ownerSlice";
+import thunk from 'redux-thunk'
+import { menuSlice } from "../features/menu/menuSlice";
+import { api } from "../services/fidelityApi";
 
 let state = {
-    value: null,
     owner: {},
     list: [
     ]
 };
 
-const reducer = (currentState, action) => {
-  switch (action.type) {
-    case "ADD_PRODUCT": {
-      const listWithNewProduct = [...currentState.list, action.payload];
-      return { ...currentState, list: listWithNewProduct };
+export const store = configureStore(
+    {
+        preloadedState: state,
+        reducer: combineReducers({
+            owner: ownerSlice.reducer,
+            list: cartSlice.reducer,
+            menu: menuSlice.reducer,
+            [api.reducerPath]: api.reducer,
+        }),
+        middleware: getDefaultMiddleware => getDefaultMiddleware().concat(api.middleware).concat(thunk),
     }
-    case "REMOVE_PRODUCT": {
-      const list = currentState.list.filter(
-        (item, index) => index !== action.payload
-      );
-      return { ...currentState, list: list };
-    }
-    case "APPLY_VOUCHER": {
-      const withVoucherList = currentState.list.map((item) =>
-        item.title === "Super Crémeux"
-          ? { ...item, price: action.payload.price }
-          : item
-      );
-      return { ...currentState, list: withVoucherList };
-    }
-    case "UPDATE_FIRSTNAME": {
-      const owner = { ...currentState.owner, firstName: action.payload };
-      return { ...currentState, owner };
-    }
-    default:
-      return currentState;
-  }
-};
-
-export const store = configureStore({
-  preloadedState: state,
-  reducer,
-});
+)
