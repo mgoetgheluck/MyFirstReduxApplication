@@ -7,7 +7,7 @@ function App() {
   return (
     <Provider store={store}>
       <div className="App">
-        {/**<Cart />**/}
+        <Cart />
       </div>
     </Provider>
   );
